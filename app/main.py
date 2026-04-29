@@ -272,15 +272,15 @@ async def get_results():
                 data = json.load(f)
 
             grade = data.get("grade", "")
-            groups = data.get("groups", [])
+            clusters = data.get("clusters", [])
             total_slos = sum(
-                len(g.get("learning_outcomes", []))
-                for g in groups
+                len(c.get("specific_learning_outcomes", []))
+                for c in clusters
             )
             files.append({
                 "filename": filepath.name,
                 "grade": grade,
-                "clusters": len(groups),
+                "clusters": len(clusters),
                 "slos": total_slos,
             })
         except Exception:

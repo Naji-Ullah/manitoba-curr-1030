@@ -289,11 +289,10 @@ def _parse_grade_slos(all_text: str, grade: str) -> list[dict]:
         slos = slo_by_cluster.get(cluster_num, [])
 
         clusters.append({
-            "id": f"cluster_{cluster_num}",
-            "type": "cluster",
+            "id": title,
             "title": title,
             "description": description,
-            "learning_outcomes": slos,
+            "specific_learning_outcomes": slos,
         })
 
     return clusters
@@ -461,15 +460,13 @@ def scrape_science_band(
     for grade, clusters in results.items():
         pdf_url_for_grade = config["per_grade"].get(grade, config["full_doc"])
 
+        course_label = f"{grade} Science" if grade != "K" else "K-4 Science"
         output_data = {
-            "province": "Manitoba",
             "subject": "Science",
             "grade": grade,
+            "course": course_label,
             "framework_year": framework_year,
-            "source_url": None,
-            "source_pdf": pdf_url_for_grade,
-            "organizing_structure": "clusters",
-            "groups": clusters,
+            "clusters": clusters,
         }
 
         filename = f"Science_Grade_{grade}.json"
@@ -478,7 +475,7 @@ def scrape_science_band(
             json.dump(output_data, f, indent=4, ensure_ascii=False)
 
         if progress_callback:
-            total_slos = sum(len(c["learning_outcomes"]) for c in clusters)
+            total_slos = sum(len(c["specific_learning_outcomes"]) for c in clusters)
             progress_callback(
                 f"Saved {filename}: {len(clusters)} clusters, {total_slos} SLOs"
             )
