@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.science_scraper import scrape_all_science
+from app.socstud_scraper import scrape_all_socstud
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -87,7 +88,7 @@ HTML_PAGE = """<!DOCTYPE html>
             <h2>Scrape Subjects</h2>
             <div class="btn-row">
                 <button class="btn-science" onclick="startScrape('science')" id="btn-science">Scrape Science (K-10)</button>
-                <button class="btn-social" onclick="startScrape('social_studies')" id="btn-social" disabled title="Coming soon">Scrape Social Studies</button>
+                <button class="btn-social" onclick="startScrape('social_studies')" id="btn-social">Scrape Social Studies</button>
                 <button class="btn-math" onclick="startScrape('math')" id="btn-math" disabled title="Coming soon">Scrape Mathematics</button>
             </div>
             <div class="btn-row">
@@ -126,7 +127,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 const btn = document.getElementById(id);
                 if (btn && btnOrigText[id]) btn.textContent = btnOrigText[id];
                 // Only enable buttons that are implemented
-                if (id === 'btn-science' && btn) btn.disabled = false;
+                if (['btn-science', 'btn-social'].includes(id) && btn) btn.disabled = false;
             });
         }
 
@@ -227,16 +228,20 @@ async def start_scrape(subject: str):
     scrape_state["log"] = []
     scrape_state["results"] = None
 
-    if subject == "science":
-        asyncio.get_event_loop().run_in_executor(
-            None, _run_science_scrape
-        )
-    else:
+    scrape_funcs = {
+        "science": _run_science_scrape,
+        "social_studies": _run_socstud_scrape,
+    }
+
+    func = scrape_funcs.get(subject)
+    if not func:
         scrape_state["is_running"] = False
         return JSONResponse(
             {"detail": f"Subject '{subject}' scraping not yet implemented"},
             status_code=400,
         )
+
+    asyncio.get_event_loop().run_in_executor(None, func)
 
     return {"status": "started", "subject": subject}
 
@@ -248,6 +253,18 @@ def _run_science_scrape():
         log_progress("\nScrape complete!")
     except Exception as e:
         logger.exception("Science scrape failed")
+        log_progress(f"\nFATAL ERROR: {e}")
+    finally:
+        scrape_state["is_running"] = False
+
+
+def _run_socstud_scrape():
+    try:
+        results = scrape_all_socstud(OUTPUT_DIR, progress_callback=log_progress)
+        scrape_state["results"] = results
+        log_progress("\nScrape complete!")
+    except Exception as e:
+        logger.exception("Social Studies scrape failed")
         log_progress(f"\nFATAL ERROR: {e}")
     finally:
         scrape_state["is_running"] = False
@@ -272,15 +289,15 @@ async def get_results():
                 data = json.load(f)
 
             grade = data.get("grade", "")
-            groups = data.get("groups", [])
+            clusters = data.get("clusters", [])
             total_slos = sum(
-                len(g.get("learning_outcomes", []))
-                for g in groups
+                len(g.get("specific_learning_outcomes", []))
+                for g in clusters
             )
             files.append({
                 "filename": filepath.name,
                 "grade": grade,
-                "clusters": len(groups),
+                "clusters": len(clusters),
                 "slos": total_slos,
             })
         except Exception:
