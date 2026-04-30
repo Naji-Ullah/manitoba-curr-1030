@@ -13,6 +13,7 @@ from app.socstud_scraper import scrape_all_socstud
 from app.math_scraper import scrape_all_math
 from app.pehe_scraper import scrape_all_pehe
 from app.cardev_scraper import scrape_all_cardev
+from app.ela_scraper import scrape_all_ela
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -96,7 +97,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 <button class="btn-math" onclick="startScrape('math')" id="btn-math">Scrape Mathematics</button>
             </div>
             <div class="btn-row">
-                <button class="btn-ela" onclick="startScrape('ela')" id="btn-ela" disabled title="Coming soon">Scrape ELA</button>
+                <button class="btn-ela" onclick="startScrape('ela')" id="btn-ela">Scrape ELA (Senior 1-4)</button>
                 <button class="btn-cardev" onclick="startScrape('cardev')" id="btn-cardev">Scrape Career Development</button>
                 <button class="btn-physed" onclick="startScrape('physed')" id="btn-physed">Scrape Phys Ed / Health Ed</button>
                 <button class="btn-arts" onclick="startScrape('arts')" id="btn-arts" disabled title="Coming soon">Scrape Arts Education</button>
@@ -132,7 +133,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 const btn = document.getElementById(id);
                 if (btn && btnOrigText[id]) btn.textContent = btnOrigText[id];
                 // Only enable buttons that are implemented
-                if (['btn-science', 'btn-social', 'btn-math', 'btn-physed', 'btn-cardev'].includes(id) && btn) btn.disabled = false;
+                if (['btn-science', 'btn-social', 'btn-math', 'btn-physed', 'btn-cardev', 'btn-ela'].includes(id) && btn) btn.disabled = false;
             });
         }
 
@@ -239,6 +240,7 @@ async def start_scrape(subject: str):
         "math": _run_math_scrape,
         "physed": _run_pehe_scrape,
         "cardev": _run_cardev_scrape,
+        "ela": _run_ela_scrape,
     }
 
     func = scrape_funcs.get(subject)
@@ -297,6 +299,18 @@ def _run_pehe_scrape():
         log_progress("\nScrape complete!")
     except Exception as e:
         logger.exception("PE/HE scrape failed")
+        log_progress(f"\nFATAL ERROR: {e}")
+    finally:
+        scrape_state["is_running"] = False
+
+
+def _run_ela_scrape():
+    try:
+        results = scrape_all_ela(OUTPUT_DIR, progress_callback=log_progress)
+        scrape_state["results"] = results
+        log_progress("\nScrape complete!")
+    except Exception as e:
+        logger.exception("ELA scrape failed")
         log_progress(f"\nFATAL ERROR: {e}")
     finally:
         scrape_state["is_running"] = False
