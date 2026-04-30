@@ -305,8 +305,8 @@ async def get_results():
             grade = data.get("grade", "")
             clusters = data.get("clusters", [])
             total_slos = sum(
-                len(g.get("specific_learning_outcomes", []))
-                for g in clusters
+                len(c.get("specific_learning_outcomes", []))
+                for c in clusters
             )
             files.append({
                 "filename": filepath.name,

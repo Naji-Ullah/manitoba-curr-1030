@@ -289,7 +289,7 @@ def _parse_grade_slos(all_text: str, grade: str) -> list[dict]:
         slos = slo_by_cluster.get(cluster_num, [])
 
         clusters.append({
-            "id": f"cluster_{cluster_num}",
+            "id": title,
             "title": title,
             "description": description,
             "specific_learning_outcomes": slos,
@@ -460,10 +460,11 @@ def scrape_science_band(
     for grade, clusters in results.items():
         pdf_url_for_grade = config["per_grade"].get(grade, config["full_doc"])
 
+        course_label = f"{grade} Science" if grade != "K" else "K-4 Science"
         output_data = {
             "subject": "Science",
             "grade": grade,
-            "course": f"Grade {grade} Science" if grade != "K" else "Kindergarten Science",
+            "course": course_label,
             "framework_year": framework_year,
             "clusters": clusters,
         }

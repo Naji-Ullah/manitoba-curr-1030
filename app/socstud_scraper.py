@@ -434,7 +434,7 @@ def _parse_grade_outcomes(text: str, grade: str) -> list[dict]:
         outcomes = outcomes_by_cluster.get(cluster_num, [])
 
         clusters.append({
-            "id": f"cluster_{cluster_num}",
+            "id": title,
             "title": title,
             "description": "",
             "specific_learning_outcomes": outcomes,
@@ -493,7 +493,7 @@ def scrape_socstud_k8(
         output_data = {
             "subject": "Social Studies",
             "grade": display_grade,
-            "course": f"Grade {display_grade} Social Studies" if display_grade != "K" else "Kindergarten Social Studies",
+            "course": f"{display_grade} Social Studies",
             "framework_year": "Framework 2003",
             "clusters": clusters,
         }
@@ -544,7 +544,7 @@ def scrape_socstud_senior(
         output_data = {
             "subject": "Social Studies",
             "grade": grade,
-            "course": f"Grade {grade} Social Studies",
+            "course": f"{grade} Social Studies",
             "framework_year": config["framework_year"],
             "clusters": clusters,
         }
@@ -706,7 +706,7 @@ def _parse_senior_grade(doc: fitz.Document, grade: str, config: dict) -> list[di
             i += 1
 
         result.append({
-            "id": f"cluster_{cluster_num}",
+            "id": cluster_title,
             "title": cluster_title,
             "description": "",
             "specific_learning_outcomes": outcomes,

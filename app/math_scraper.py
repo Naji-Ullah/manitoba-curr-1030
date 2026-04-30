@@ -274,7 +274,7 @@ def _parse_grade_outcomes(text: str, grade: str) -> list[dict]:
     for strand_name, outcomes in strands.items():
         glo_text = strand_glos.get(strand_name, MATH_GLOS.get(strand_name, ""))
         clusters.append({
-            "id": f"strand_{cluster_num}",
+            "id": strand_name,
             "title": strand_name,
             "description": glo_text,
             "specific_learning_outcomes": outcomes,
@@ -334,7 +334,7 @@ def scrape_math_k8(
         output_data = {
             "subject": "Mathematics",
             "grade": display_grade,
-            "course": f"Grade {display_grade} Mathematics" if display_grade != "K" else "Kindergarten Mathematics",
+            "course": f"{display_grade} Mathematics",
             "framework_year": "Framework 2013",
             "clusters": clusters,
         }
