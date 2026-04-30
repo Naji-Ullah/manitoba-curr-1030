@@ -49,9 +49,16 @@ SCIENCE_PDFS: dict[str, dict] = {
     "S1": {
         "full_doc": f"{BASE_URL}/s1/full_doc.pdf",
         "per_grade": {
-            "9": f"{BASE_URL}/s1/outcomes.pdf",
+            "10": f"{BASE_URL}/s1/outcomes.pdf",
         },
         "framework_year": "Framework 2000",
+    },
+    "S2": {
+        "full_doc": f"{BASE_URL}/s2/slo.pdf",
+        "per_grade": {
+            "11": f"{BASE_URL}/s2/slo.pdf",
+        },
+        "framework_year": "Framework 2001",
     },
 }
 
@@ -105,9 +112,9 @@ def _grade_prefix(grade: str) -> str:
         return "K-"
     if grade in ("1", "2", "3", "4", "5", "6", "7", "8"):
         return f"{grade}-"
-    if grade == "9":
-        return "S1-"
     if grade == "10":
+        return "S1-"
+    if grade == "11":
         return "S2-"
     return ""
 
@@ -159,9 +166,9 @@ def _grade_label(grade: str) -> str:
         return "Kindergarten"
     if grade in ("1", "2", "3", "4", "5", "6", "7", "8"):
         return f"Grade {grade}"
-    if grade == "9":
-        return "Senior 1"
     if grade == "10":
+        return "Senior 1"
+    if grade == "11":
         return "Senior 2"
     return ""
 
@@ -384,7 +391,7 @@ def _find_grade_page_ranges(
             for line in page_text.split("\n"):
                 m = grade_cluster0_pattern.search(line.strip())
                 if m:
-                    grade_num = m.group(1) or str(int(m.group(2)) + 8)
+                    grade_num = m.group(1) or str(int(m.group(2)) + 9)
                     if grade_num not in seen_grades:
                         seen_grades.add(grade_num)
                         grade_entries.append((grade_num, page_idx))

@@ -93,7 +93,7 @@ HTML_PAGE = """<!DOCTYPE html>
         <div class="card">
             <h2>Scrape Subjects</h2>
             <div class="btn-row">
-                <button class="btn-science" onclick="startScrape('science')" id="btn-science">Scrape Science (K-10)</button>
+                <button class="btn-science" onclick="startScrape('science')" id="btn-science">Scrape Science (K-11)</button>
                 <button class="btn-social" onclick="startScrape('social_studies')" id="btn-social">Scrape Social Studies</button>
                 <button class="btn-math" onclick="startScrape('math')" id="btn-math">Scrape Mathematics</button>
             </div>
