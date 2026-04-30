@@ -12,6 +12,7 @@ from app.science_scraper import scrape_all_science
 from app.socstud_scraper import scrape_all_socstud
 from app.math_scraper import scrape_all_math
 from app.pehe_scraper import scrape_all_pehe
+from app.cardev_scraper import scrape_all_cardev
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -64,6 +65,7 @@ HTML_PAGE = """<!DOCTYPE html>
         .btn-ela { background: #d35400; }
         .btn-physed { background: #16a085; }
         .btn-arts { background: #c0392b; }
+        .btn-cardev { background: #e67e22; }
         .btn-all { background: #2c3e50; }
         #log {
             background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 6px;
@@ -95,6 +97,7 @@ HTML_PAGE = """<!DOCTYPE html>
             </div>
             <div class="btn-row">
                 <button class="btn-ela" onclick="startScrape('ela')" id="btn-ela" disabled title="Coming soon">Scrape ELA</button>
+                <button class="btn-cardev" onclick="startScrape('cardev')" id="btn-cardev">Scrape Career Development</button>
                 <button class="btn-physed" onclick="startScrape('physed')" id="btn-physed">Scrape Phys Ed / Health Ed</button>
                 <button class="btn-arts" onclick="startScrape('arts')" id="btn-arts" disabled title="Coming soon">Scrape Arts Education</button>
             </div>
@@ -129,7 +132,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 const btn = document.getElementById(id);
                 if (btn && btnOrigText[id]) btn.textContent = btnOrigText[id];
                 // Only enable buttons that are implemented
-                if (['btn-science', 'btn-social', 'btn-math', 'btn-physed'].includes(id) && btn) btn.disabled = false;
+                if (['btn-science', 'btn-social', 'btn-math', 'btn-physed', 'btn-cardev'].includes(id) && btn) btn.disabled = false;
             });
         }
 
@@ -235,6 +238,7 @@ async def start_scrape(subject: str):
         "social_studies": _run_socstud_scrape,
         "math": _run_math_scrape,
         "physed": _run_pehe_scrape,
+        "cardev": _run_cardev_scrape,
     }
 
     func = scrape_funcs.get(subject)
@@ -293,6 +297,18 @@ def _run_pehe_scrape():
         log_progress("\nScrape complete!")
     except Exception as e:
         logger.exception("PE/HE scrape failed")
+        log_progress(f"\nFATAL ERROR: {e}")
+    finally:
+        scrape_state["is_running"] = False
+
+
+def _run_cardev_scrape():
+    try:
+        results = scrape_all_cardev(OUTPUT_DIR, progress_callback=log_progress)
+        scrape_state["results"] = results
+        log_progress("\nScrape complete!")
+    except Exception as e:
+        logger.exception("Career Dev scrape failed")
         log_progress(f"\nFATAL ERROR: {e}")
     finally:
         scrape_state["is_running"] = False
